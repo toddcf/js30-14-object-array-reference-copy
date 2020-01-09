@@ -8,17 +8,37 @@
 
   <script>
     // start with strings, numbers and booleans
+    let age = 100;
+    let age2 = age;
+    console.log(age, age2); // 100, 100
+
+    // Changing the original variable will not update the second variable:
+    age = 200;
+    console.log(age, age2); // 200, 100
+
+    let name = 'Wes';
+    let name2 = name;
+    console.log(name, name2); // Wes, Wes
+
+    // Again, changing the original variable will not update the second variable:
+    name = 'Wesley';
+    console.log(name, name2); // Wesley, Wes
 
     // Let's say we have an array
     const players = ['Wes', 'Sarah', 'Ryan', 'Poppy'];
 
     // and we want to make a copy of it.
+    const team = players;
+    console.log(players, team); // ['Wes', 'Sarah', 'Ryan', 'Poppy'], ['Wes', 'Sarah', 'Ryan', 'Poppy']
 
     // You might think we can just do something like this:
+    team[3] = 'Lux';
+    console.log(team); // ['Wes', 'Sarah', 'Ryan', 'Lux']
 
     // however what happens when we update that array?
 
     // now here is the problem!
+    console.log(players); // ['Wes', 'Sarah', 'Ryan', 'Lux']
 
     // oh no - we have edited the original array too!
 
@@ -27,12 +47,29 @@
     // So, how do we fix this? We take a copy instead!
 
     // one way
+    const team2 = players.slice();
+    console.log(team2); // ['Wes', 'Sarah', 'Ryan', 'Lux']
+    // Because you've passed nothing into the slice, it returns a copy of the original array. (It slices the whole thing out.)
 
     // or create a new array and concat the old one in
+    const team3 = [].concat(players); // ['Wes', 'Sarah', 'Ryan', 'Lux']
 
     // or use the new ES6 Spread
+    const team4 = [...players];
+    console.log(team4); // ['Wes', 'Sarah', 'Ryan', 'Lux']
+    // This will take every item out of your iterable and put it into your containing array.
 
     // now when we update it, the original one isn't changed
+    team4[3] = 'Sub-Zero';
+    console.log(team4); // ['Wes', 'Sarah', 'Ryan', 'Sub-Zero']
+    console.log(players); // ['Wes', 'Sarah', 'Ryan', 'Lux']
+
+    // or use Array.from:
+    const team5 = Array.from(players);
+    console.log(team5); // ['Wes', 'Sarah', 'Ryan', 'Lux']
+    team5[3] = 'Reptile';
+    console.log(team5); // ['Wes', 'Sarah', 'Ryan', 'Reptile']
+    console.log(players); // ['Wes', 'Sarah', 'Ryan', 'Lux']
 
     // The same thing goes for objects, let's say we have a person object
 
@@ -43,12 +80,57 @@
     };
 
     // and think we make a copy:
+    const captain = person;
 
-    // how do we take a copy instead?
+    // If we update the reference, we update the original, too:
+    captain.age = 99;
+    console.log(person.age); // returns 99 instead of 80.
+
+    // how do we take a copy instead? Use Object.assign:
+    // Start with a blank object (first argument) and pass it the object you want to copy from (in this case "person"), then add a third argument that contains the properties you want to add or overwrite:
+    const captain2 = Object.assign({}, person, {number: 99});
+    console.log(captain2); // {name: 'Wes Bos', age: 80, number: 99}
+    console.log(person); // {name: 'Wes Bos', age: 80}
 
     // We will hopefully soon see the object ...spread
+    // const cap3 = {...person};
 
-    // Things to note - this is only 1 level deep - both for Arrays and Objects. lodash has a cloneDeep method, but you should think twice before using it.
+    // Things to note - this is only 1 level deep - both for Arrays and Objects.
+    const wes = {
+      name: 'Wes',
+      age: 100,
+      social: {
+        twitter: '@wesbos',
+        facebook: 'wesbos.developer'
+      }
+    }
+
+    console.log(wes);
+
+    // Now create an Object.assign:
+    const dev = Object.assign({}, wes);
+    // and mutate it:
+    dev.name = 'Wesley';
+    // Only the copy gets changed:
+    console.log(wes);
+    console.log(dev);
+
+    // HERE'S WHERE THE ONE-LEVEL-DEEP PROBLEM COMES INTO PLAY:
+    // Try editing the social accounts, which are two levels deep:
+    dev.social.twitter = '@coolman';
+    // They BOTH get changed:
+    console.log(wes); // twitter will be @coolman
+    console.log(dev); // twitter will be @coolman
+
+    // This is because Object.assign doesn't go beyond one level deep. lodash has a cloneDeep method, but you should think twice before using it.
+
+    // Here is a poor man's way of deep cloning (but ask yourself if you should be doing this at all):
+    const dev2 = JSON.parse(JSON.stringify(wes));
+    dev2.social.twitter = '@raider';
+    console.log(wes.social.twitter); // Will still be @coolman
+    console.log(dev2.social.twitter); // Will now be @raider
+
+    // The above works because you've converted it into a string and then back into an object. It's probably not great for performance.
 
   </script>
 
